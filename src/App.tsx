@@ -31,15 +31,12 @@ export const App: React.FC = () => {
     setSelectedPerson(undefined);
   }
 
-  const people = [...peopleFromServer];
-
   const filteredPeople = useMemo(() => {
-    return people.filter(fperson =>
-      fperson.name
-        .toLocaleLowerCase()
-        .includes(appliedSearch.toLocaleLowerCase()),
+  return peopleFromServer
+    .filter(fperson =>
+      fperson.name.toLocaleLowerCase().includes(appliedSearch.toLocaleLowerCase()),
     );
-  }, [appliedSearch, people]);
+}, [appliedSearch]);
 
   return (
     <div className="container">
