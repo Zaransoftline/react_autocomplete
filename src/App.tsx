@@ -1,51 +1,52 @@
-import React, { ChangeEvent, useCallback, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import './App.scss';
 import { peopleFromServer } from './data/people';
 import classNames from 'classnames';
-import { event } from 'cypress/types/jquery';
 import { Person } from './types/Person';
+
+function debounce(callback: (value: string) => void, delay: number) {
+  let timerId = 0;
+
+  return (value: string) => {
+    clearTimeout(timerId);
+    timerId = window.setTimeout(() => {
+      callback(value);
+    }, delay);
+  };
+}
 
 export const App: React.FC = () => {
   const [query, setQuery] = useState('');
 
   const [isFocused, setIsFocused] = useState(false);
-  const [person, setSelectedPerson] = useState<Person>();
+  const [selectedPerson, setSelectedPerson] = useState<Person>();
 
-  function debounce(callback: Function, delay: number) {
-    let timerId = 0;
-
-    return (...args: any) => {
-      window.clearTimeout(timerId);
-
-      timerId = window.setTimeout(() => {
-        callback(...args);
-      }, delay);
-    };
-  }
   const [appliedSearch, setAppliedSearch] = useState('');
 
-  const applySearch = useCallback(debounce(setAppliedSearch, 300), []);
+  const applySearch = debounce(setAppliedSearch, 300);
 
   function handleTextChange(event: React.ChangeEvent<HTMLInputElement>) {
     setQuery(event.target.value);
     applySearch(event.target.value);
     setSelectedPerson(undefined);
   }
+
   const people = [...peopleFromServer];
 
   const filteredPeople = useMemo(() => {
-    return people.filter(person =>
-      person.name.toLocaleLowerCase().includes(appliedSearch.toLocaleLowerCase()),
+    return people.filter(fperson =>
+      fperson.name
+        .toLocaleLowerCase()
+        .includes(appliedSearch.toLocaleLowerCase()),
     );
-  }, [appliedSearch, peopleFromServer]);
+  }, [appliedSearch, peopleFromServer, people]);
 
-  console.log('Rendering');
   return (
     <div className="container">
       <main className="section is-flex is-flex-direction-column">
         <h1 className="title" data-cy="title">
-          {person
-            ? `${person.name} (${person.born} - ${person.died})`
+          {selectedPerson
+            ? `${selectedPerson.name} (${selectedPerson.born} - ${selectedPerson.died})`
             : 'No selected person'}
         </h1>
 
@@ -94,7 +95,8 @@ export const App: React.FC = () => {
 
             {filteredPeople.length === 0 && (
               <div
-                className="notification is-danger is-light mt-3 is-align-self-flex-start"
+                className="notification is-danger 
+                is-light mt-3 is-align-self-flex-start"
                 role="alert"
                 data-cy="no-suggestions-message"
               >
