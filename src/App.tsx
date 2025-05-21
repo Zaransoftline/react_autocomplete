@@ -39,7 +39,7 @@ export const App: React.FC = () => {
         .toLocaleLowerCase()
         .includes(appliedSearch.toLocaleLowerCase()),
     );
-  }, [appliedSearch, peopleFromServer, people]);
+  }, [appliedSearch, people]);
 
   return (
     <div className="container">
